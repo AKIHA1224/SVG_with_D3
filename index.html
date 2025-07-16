@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Bezos vs. Average: Wealth Visualization</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 2em;
+      }
+      svg {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Bezos vs. Average: Wealth Visualization</h1>
+    <p>This D3 SVG chart compares how much Jeff Bezos and the average American spent on their wedding <strong>relative to their wealth</strong>.</p>
+
+    <div id="my-svg-chart"></div>
+
+    <script>
+      // Step 1: Define raw data (in millions)
+      const bezosCost = 56;
+      const bezosWealth = 236000;
+      const averageCost = 0.033;
+      const averageWealth = 0.1929;
+
+      // Step 2: Create data array with ratio calculation
+      const people = [
+        {
+          name: 'Bezos',
+          cost: bezosCost,
+          wealth: bezosWealth,
+          ratio: bezosCost / bezosWealth,
+          x: 160
+        },
+        {
+          name: 'Average American',
+          cost: averageCost,
+          wealth: averageWealth,
+          ratio: averageCost / averageWealth,
+          x: 480
+        }
+      ];
+
+      // Step 3: Create radius scale based on the cost/wealth ratio
+      const scaleRatioRadius = d3.scaleSqrt()
+        .domain([0, d3.max(people, d => d.ratio)])
+        .range([0, 50]); // Adjust max size as needed
+
+      // Step 4: Set up SVG
+      const svg = d3.select('#my-svg-chart')
+        .append('svg')
+        .attr('width', 640)
+        .attr('height', 300);
+
+      // Step 5: Create a group <g> for each person
+      const groups = svg.selectAll('g')
+        .data(people)
+        .join('g')
+        .attr('transform', d => `translate(${d.x}, 150)`);
+
+      // Step 6: Draw outer circle (wealth container)
+      groups.append('circle')
+        .attr('r', 100)
+        .attr('fill', '#ccc');
+
+      // Step 7: Draw inner circle (wedding cost as ratio of wealth)
+      groups.append('circle')
+        .attr('r', d => scaleRatioRadius(d.ratio))
+        .attr('fill', 'red')
+        .attr('opacity', 0.8);
+
+      // Step 8: Add name label
+      groups.append('text')
+        .attr('y', 130)
+        .attr('text-anchor', 'middle')
+        .text(d => d.name);
+    </script>
+  </body>
+</html>
